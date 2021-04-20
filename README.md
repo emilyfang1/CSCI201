@@ -27,6 +27,6 @@ setup guide: [Windows](https://www.guru99.com/download-install-node-js.html) | [
 5. If no project is currently opened in IntelliJ IDEA, click **Open** on the welcome screen. Otherwise, select **File | Open** from the main menu.
 6. In the dialog that opens, select the back-end folder and click OK. IntelliJ IDEA opens and syncs the project in the IDE.
 7. Slect **View | Tool Windows | Gradle**
-8. In the Gradle tool window, on the toolbar, click ![alt text](/gradle-common.icons.gradle.jpg "Logo Title Text 1"). Alternatively, press `Ctrl` twice to open the **Run Anything** window.
-9.  select **-run-task-name-goes-here-** and press `Enter`.
+8. In the Gradle tool window, on the toolbar, click ![alt text](/gradle-common.icons.gradle.jpg "Elephant logo"). Alternatively, press `Ctrl` twice to open the **Run Anything** window.
+9.  Select **-run-task-name-goes-here-** and press `Enter`.
 10. Go to http://localhost:3000 and enjoy.

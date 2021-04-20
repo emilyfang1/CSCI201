@@ -1,0 +1,14 @@
+<html>
+<head>
+    <title>Spotify API test</title>
+</head>
+<body>
+    <h1>Playlist modification</h1>
+    {{#if success}}
+        <p>Successfully added 10 songs to your playlist! Go <a href="/">back</a>.</p>
+    {{else}}
+        <p>Oh no... failed. Please go back to the <a href="/">homepage</a>.</p>
+        {{#if message}}<b>Error:</b> {{message}}{{/if}}
+    {{/if}}
+</body>
+</html>
