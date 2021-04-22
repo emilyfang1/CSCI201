@@ -1,10 +1,7 @@
 package com.adamratzman.webserverauth;
 
 import com.adamratzman.Const;
-import com.adamratzman.spotify.SpotifyApiBuilderKt;
-import com.adamratzman.spotify.SpotifyClientApi;
-import com.adamratzman.spotify.SpotifyScope;
-import com.adamratzman.spotify.SpotifyUserAuthorization;
+import com.adamratzman.spotify.*;
 import com.adamratzman.spotify.endpoints.pub.TrackAttribute;
 import com.adamratzman.spotify.endpoints.pub.TuneableTrackAttribute;
 import com.adamratzman.spotify.models.PagingObject;
@@ -20,8 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static spark.Spark.get;
-import static spark.Spark.port;
+import static spark.Spark.*;
 
 public class SpotifyWebClientAuthServer {
     private static final String redirectUri = "http://localhost/spotify-callback";
@@ -36,14 +32,22 @@ public class SpotifyWebClientAuthServer {
             true,
             null
     );
+    private static final SpotifyAppApi api = SpotifyApiBuilderKt.spotifyAppApi(Const.clientId, Const.clientSecret).buildRestAction(true).complete();
+
+
 
     public static void main(String[] args) {
         port(80);
-
+        staticFiles.location("/public");
         get("/", SpotifyWebClientAuthServer::handleHomeRequest, new HandlebarsTemplateEngine());
         get("/submit-playlist-for-modifications", SpotifyWebClientAuthServer::handleModifyPlaylistRequest, new HandlebarsTemplateEngine());
         get("/redirect-to-auth", SpotifyWebClientAuthServer::handleAuthRedirectRequest);
         get("/spotify-callback", SpotifyWebClientAuthServer::handleSpotifyCallbackRequest);
+        get("/Log-out", SpotifyWebClientAuthServer::handleLogout);
+        get("/guest", (request, response) -> {
+            Map<String, Object> model = new HashMap<>();
+            return new ModelAndView(model, "guest.hbs");
+        }, new HandlebarsTemplateEngine());
     }
 
     private static ModelAndView handleHomeRequest(Request request, Response response) {
@@ -94,14 +98,22 @@ public class SpotifyWebClientAuthServer {
             ).complete();*/
             model.put("success", true);
             model.put("playlist", playlistToAddTo);
+            model.put("iframe","https://open.spotify.com/embed/playlist/"+playlistToAddTo.getId());
             for(int i = 0 ; i < recommendationResponse.getTracks().size(); i++){
                 model.put("track", recommendationResponse.getTracks().get(i));
             }
 
+
         } catch (Exception exception) { // i'm lazy
             exception.printStackTrace();
             model.put("success", false);
-            model.put("message", exception.getMessage());
+            if(exception.getMessage().equals("empty String"))
+            {
+                model.put("message", "You need to enter the happiness level!");
+            }
+            else {
+                model.put("message", exception.getMessage());
+            }
         }
 
         System.out.println(request.queryParams());
@@ -123,13 +135,19 @@ public class SpotifyWebClientAuthServer {
                         redirectUri,
                         new SpotifyUserAuthorization(code, null, null, null, null),
                         spotifyApiOptions -> null).buildRestAction(true).complete();
-
                 request.session().attribute("api", spotifyClientApi);
                 response.redirect("/");
             } catch (Exception e) {
                 response.redirect(authorizationUrl);
             }
         }
+        return null;
+    }
+
+
+    private static Object handleLogout(Request request, Response response) {
+        request.session().removeAttribute("api");
+        response.redirect("/");
         return null;
     }
 }
